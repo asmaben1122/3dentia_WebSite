@@ -66,10 +66,26 @@ export function useAllReconstructions() {
     (async () => {
       setLoading(true);
 
-      // 1. Fetch all reconstructions (simple select — no join, avoids type issues)
+      // 1. Get the IDs of patients belonging to this doctor
+      const { data: ownPatients } = await supabase
+        .from("patients")
+        .select("id")
+        .eq("user_id", user.id);
+
+      const ownPatientIds = (ownPatients ?? []).map((p: { id: string }) => p.id);
+
+      // No patients yet → nothing to show
+      if (ownPatientIds.length === 0) {
+        setItems([]);
+        setLoading(false);
+        return;
+      }
+
+      // 2. Fetch reconstructions only for those patients
       const { data: reconData, error: reconError } = await supabase
         .from("reconstructions")
         .select("*")
+        .in("patient_id", ownPatientIds)
         .order("created_at", { ascending: false })
         .limit(100);
 
@@ -86,11 +102,12 @@ export function useAllReconstructions() {
         return;
       }
 
-      // 2. Fetch patient names separately so we can label each card
+      // 3. Fetch patient names separately so we can label each card
       const patientIds = [...new Set((reconData as Reconstruction[]).map((r) => r.patient_id))];
       const { data: patientData, error: patientError } = await supabase
         .from("patients")
         .select("id, patient_name")
+        .eq("user_id", user.id)
         .in("id", patientIds);
 
       if (patientError) {
@@ -104,7 +121,7 @@ export function useAllReconstructions() {
         }
       }
 
-      // 3. Merge patient name into each reconstruction record
+      // 4. Merge patient name into each reconstruction record
       const merged: ReconWithPatient[] = (reconData as Reconstruction[]).map((r) => ({
         ...r,
         patients: { patient_name: patientMap[r.patient_id] ?? "Unknown patient" },

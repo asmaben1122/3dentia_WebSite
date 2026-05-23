@@ -79,7 +79,7 @@ export function useDashboard() {
       try {
         // Fetch patients + all reconstructions in parallel
         const [patientsRes, reconsRes, recentRes] = await Promise.all([
-          supabase.from("patients").select("id, created_at"),
+          supabase.from("patients").select("id, created_at").eq("user_id", user.id),
           supabase.from("reconstructions").select("id, patient_id, status, confidence_score, created_at"),
           supabase.from("reconstructions").select("*").order("created_at", { ascending: false }).limit(6),
         ]);
@@ -96,7 +96,7 @@ export function useDashboard() {
         const pMap: Record<string, string> = {};
         if (pIds.length) {
           const { data: pData } = await supabase
-            .from("patients").select("id, patient_name").in("id", pIds);
+            .from("patients").select("id, patient_name").eq("user_id", user.id).in("id", pIds);
           for (const p of (pData ?? []) as { id: string; patient_name: string }[])
             pMap[p.id] = p.patient_name;
         }
@@ -107,7 +107,7 @@ export function useDashboard() {
         const missing = allPIds.filter((id) => !allPMap[id]);
         if (missing.length) {
           const { data: mData } = await supabase
-            .from("patients").select("id, patient_name").in("id", missing);
+            .from("patients").select("id, patient_name").eq("user_id", user.id).in("id", missing);
           for (const p of (mData ?? []) as { id: string; patient_name: string }[])
             allPMap[p.id] = p.patient_name;
         }
