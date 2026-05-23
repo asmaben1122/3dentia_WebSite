@@ -1,0 +1,6 @@
+[2026-05-22 17:52:45,254] INFO     3DentAI - [connection.py:27] - Successfully initialized Supabase client.
+[2026-05-22 17:52:46,580] INFO     3DentAI - [connection.py:51] - Successfully initialized Supabase admin client.
+[2026-05-22 17:53:06,287] INFO     3DentAI - [connection.py:27] - Successfully initialized Supabase client.
+[2026-05-22 17:54:00,566] INFO     3DentAI - [connection.py:27] - Successfully initialized Supabase client.
+[2026-05-22 17:54:03,287] INFO     3DentAI - [connection.py:51] - Successfully initialized Supabase admin client.
+[2026-05-22 17:54:08,007] INFO     3DentAI - [main.py:27] - CORS middleware active. Configured origins: ['*']
